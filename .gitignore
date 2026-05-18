@@ -1,0 +1,12 @@
+# Project place file
+/thesecond.rbxlx
+
+# Roblox Studio lock files
+/*.rbxlx.lock
+/*.rbxl.lock
+
+sourcemap.json
+
+# Skills & agents
+.agents/
+skills-lock.json
