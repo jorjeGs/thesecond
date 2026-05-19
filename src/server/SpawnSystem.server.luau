@@ -80,7 +80,7 @@ local function spawnCharacter(player)
 
 	local spawnCFrame = getSpawnCFrame(stage)
 	if spawnCFrame then
-		root.CFrame = spawnCFrame + Vector3.new(0, 5, 0)
+		root.CFrame = CFrame.new(spawnCFrame.Position + Vector3.new(0, 5, 0)) * CFrame.Angles(0, math.rad(-90), 0)
 	end
 end
 
