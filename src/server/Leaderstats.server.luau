@@ -28,7 +28,7 @@ local Players = game:GetService("Players")
 -- ⚙️ CONFIGURACIÓN - Edita esta tabla para cada proyecto
 ---------------------------------------------------------------------------
 local STATS_CONFIG = {
-	{ name = "Nivel",  type = "IntValue",  default = 0,  order = 1 },
+	{ name = "Stage",  type = "IntValue",  default = 0,  order = 1 },
 	{ name = "Coins",  type = "IntValue",  default = 0,  order = 2 },
 }
 ---------------------------------------------------------------------------
