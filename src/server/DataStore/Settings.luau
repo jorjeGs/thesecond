@@ -9,6 +9,7 @@ Settings.StoreName = "PlayerData_v1"
 Settings.DefaultData = {
 	Stage = 0,
 	Coins = 0,
+	["Max Stage"] = 0,
 }
 
 

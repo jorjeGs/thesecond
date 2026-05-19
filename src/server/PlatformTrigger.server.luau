@@ -28,6 +28,12 @@ local function setupPlatformTrigger(part)
 		if stageNumber then
 			-- Actualizar Stage en PlayerData (y automáticamente en leaderstats)
 			PlayerData:UpdateStat(player, "Stage", stageNumber)
+
+			-- Actualizar MaxStage si es un nuevo récord
+			local data = PlayerData:Get(player)
+			if data and stageNumber > (data["Max Stage"] or 0) then
+				PlayerData:UpdateStat(player, "Max Stage", stageNumber)
+			end
 		else
 			warn("[PlatformTrigger] El parent '" .. parentName .. "' no es un número válido")
 		end
