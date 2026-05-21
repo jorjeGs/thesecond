@@ -1,4 +1,5 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local SoundService = game:GetService("SoundService")
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 
 local COOLDOWN_DURATION = 60
@@ -43,6 +44,7 @@ local function findCoinPart(coinModel: Instance): BasePart?
 		end
 	end
 
+	-- 6. No se encontró ninguna parte
 	return nil
 end
 
@@ -56,6 +58,14 @@ local function onCoinCollected(coinModel: Instance)
 	if coinPart then
 		-- Hacer la parte visual de la moneda invisible
 		coinPart.Transparency = 1
+
+		-- Reproducir el sonido CoinCollect desde SoundService
+		local coinSound = SoundService:FindFirstChild("CoinCollect", true)
+		if coinSound and coinSound:IsA("Sound") then
+			coinSound:Play()
+		else
+			warn("[CoinManager Client] No se encontró el sonido 'CoinCollect' en SoundService")
+		end
 
 		-- Programar que vuelva a aparecer después de 60 segundos de forma no bloqueante
 		task.delay(COOLDOWN_DURATION, function()
