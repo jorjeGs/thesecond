@@ -3,16 +3,26 @@
 -- Lives in StarterPlayerScripts via Rojo, accesses GUI through PlayerGui.
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
+
+-- RemoteEvent para solicitar toggle de plataforma al servidor (se obtiene con timeout)
+local toggleEvent: RemoteEvent? = nil
+
+task.spawn(function()
+	toggleEvent = ReplicatedStorage:WaitForChild("TogglePlataformaEvent", 30)
+	if not toggleEvent then
+		warn("[HelpButton] No se encontró TogglePlataformaEvent después de 30s")
+	end
+end)
 
 -- ============================================================================
 -- GUI References
 -- ============================================================================
 local playerGui = player:WaitForChild("PlayerGui", math.huge)
-local gameGui = playerGui:WaitForChild("GameGui", math.huge)
-local botonesFrame = gameGui:WaitForChild("BotonesIzquierdaFrame", math.huge)
-local helpButton = botonesFrame:WaitForChild("HelpButton", math.huge)
-local helpButtonText = helpButton:WaitForChild("HelpButtonText", math.huge)
+local helpButton = nil
+local helpButtonText = nil
+local clickConnection = nil
 
 -- ============================================================================
 -- Animation Assets
@@ -49,6 +59,9 @@ local COLOR_ON_TEXT = Color3.fromRGB(0, 255, 0)
 -- UI Update
 -- ============================================================================
 local function updateUI()
+	if not helpButton or not helpButtonText then
+		return
+	end
 	if isHelpActive then
 		helpButtonText.Text = "HELP ON"
 		helpButtonText.TextColor3 = COLOR_ON_TEXT
@@ -91,7 +104,7 @@ local function onHelpButtonClicked()
 	isTransitioning = true
 
 	if not isHelpActive then
-		-- OFF → ON: Raise arms
+		-- OFF → ON: Raise arms + show platform
 		if trackLevantarBrazos and trackBrazosLoop then
 			trackLevantarBrazos:Play()
 			trackLevantarBrazos.Stopped:Wait()
@@ -99,15 +112,21 @@ local function onHelpButtonClicked()
 		end
 		isHelpActive = true
 		updateUI()
+		if toggleEvent then
+			toggleEvent:FireServer(true)
+		end
 	else
-		-- ON → OFF: Lower arms
+		-- ON → OFF: Hide platform FIRST, then lower arms
+		if toggleEvent then
+			toggleEvent:FireServer(false)
+		end
+		isHelpActive = false
+		updateUI()
 		if trackBrazosLoop and trackBajarBrazos then
 			trackBrazosLoop:Stop()
 			trackBajarBrazos:Play()
 			trackBajarBrazos.Stopped:Wait()
 		end
-		isHelpActive = false
-		updateUI()
 	end
 
 	isTransitioning = false
@@ -121,26 +140,50 @@ local function onCharacterAdded(character)
 	if trackBrazosLoop and trackBrazosLoop.IsPlaying then
 		trackBrazosLoop:Stop(0)
 	end
+	if trackLevantarBrazos and trackLevantarBrazos.IsPlaying then
+		trackLevantarBrazos:Stop(0)
+	end
+	if trackBajarBrazos and trackBajarBrazos.IsPlaying then
+		trackBajarBrazos:Stop(0)
+	end
+
+	-- Nullificar tracks viejos ANTES de setupAnimations
+	-- Esto evita que clicks durante el yield usen tracks del Animator destruido
+	trackLevantarBrazos = nil
+	trackBrazosLoop = nil
+	trackBajarBrazos = nil
 
 	-- Reset state
 	isHelpActive = false
 	isTransitioning = false
+
+	-- Actualizar referencias de UI (por si ResetOnSpawn destruyó la anterior)
+	if clickConnection then
+		clickConnection:Disconnect()
+		clickConnection = nil
+	end
+
+	local success = pcall(function()
+		local gameGui = playerGui:WaitForChild("GameGui", 10)
+		if not gameGui then return end
+		local botonesFrame = gameGui:WaitForChild("BotonesIzquierdaFrame", 10)
+		helpButton = botonesFrame:WaitForChild("HelpButton", 10)
+		helpButtonText = helpButton:WaitForChild("HelpButtonText", 10)
+	end)
+
+	if not success or not helpButton then
+		return
+	end
+
+	clickConnection = helpButton.MouseButton1Click:Connect(onHelpButtonClicked)
 	updateUI()
 
-	-- Load new animation tracks
+	-- Load new animation tracks (puede hacer yield en WaitForChild)
 	setupAnimations(character)
 end
 
 -- Connect to current character (if already loaded) and future respawns
 if player.Character then
-	onCharacterAdded(player.Character)
+	task.spawn(onCharacterAdded, player.Character)
 end
 player.CharacterAdded:Connect(onCharacterAdded)
-
--- ============================================================================
--- Button Connection
--- ============================================================================
-helpButton.MouseButton1Click:Connect(onHelpButtonClicked)
-
--- Set initial UI state
-updateUI()
