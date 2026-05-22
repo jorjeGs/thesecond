@@ -123,8 +123,9 @@ end
 --- Guarda los datos del jugador en DataStore
 function PlayerData:Save(player)
 	if SessionData[player] then
-		DSS:Set(player.UserId, SessionData[player])
+		return DSS:Set(player.UserId, SessionData[player])
 	end
+	return false
 end
 
 

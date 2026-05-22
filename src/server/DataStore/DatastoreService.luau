@@ -30,6 +30,7 @@ function DSS:Set(userId, data)
 	if not success then
 		warn("Error saving data:", err)
 	end
+	return success
 end
 
 
