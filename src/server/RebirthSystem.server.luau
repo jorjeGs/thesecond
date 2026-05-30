@@ -9,7 +9,7 @@ local PlayerData = require(script.Parent.DataStore.PlayerData)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 
 -- CONFIGURATION
-local REBIRTH_COST = 1000
+local REBIRTH_COST = 100
 
 local function onRebirthRequested(player: Player)
 	local data = PlayerData:Get(player)

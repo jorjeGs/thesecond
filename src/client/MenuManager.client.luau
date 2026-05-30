@@ -116,13 +116,13 @@ local function onCharacterAdded(character)
 		local rebirthsStat = leaderstats:WaitForChild("Rebirths", 10)
 		local coinsStat = leaderstats:WaitForChild("Coins", 10)
 
-		local REBIRTH_COST = 1000
+		local REBIRTH_COST = 100
 
 		local function updateRebirthUI()
 			local rebirths = rebirthsStat and rebirthsStat.Value or 0
 			local coins = coinsStat and coinsStat.Value or 0
 
-			currentRebirthText.Text = "CurrentRebirth: " .. rebirths
+			currentRebirthText.Text = "Current Rebirth: " .. rebirths
 			currentRebirthMultiplierText.Text = "Current Rebirth Multiplier: x" .. (1 + (rebirths * 0.5))
 
 			-- Display text colors based on whether player can afford rebirth
