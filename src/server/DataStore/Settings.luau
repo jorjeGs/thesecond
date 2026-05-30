@@ -8,8 +8,9 @@ Settings.StoreName = "PlayerData_v1"
 -- Estructura por defecto de los datos del jugador
 Settings.DefaultData = {
 	Stage = 0,
-	Coins = 0,
+	Coins = 0.0,
 	["Max Stage"] = 0,
+	Rebirths = 0,
 }
 
 

@@ -29,8 +29,9 @@ local Players = game:GetService("Players")
 ---------------------------------------------------------------------------
 local STATS_CONFIG = {
 	{ name = "Stage",  type = "IntValue",  default = 0,  order = 1 },
-	{ name = "Coins",  type = "IntValue",  default = 0,  order = 2 },
-	{ name = "Max Stage", type =  "IntValue", default = 0, order = 3}
+	{ name = "Coins",  type = "NumberValue",  default = 0.0,  order = 2 },
+	{ name = "Max Stage", type =  "IntValue", default = 0, order = 3},
+	{ name = "Rebirths", type = "IntValue", default = 0, order = 4 }
 }
 ---------------------------------------------------------------------------
 

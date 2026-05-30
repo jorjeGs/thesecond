@@ -19,6 +19,10 @@ if RunService:IsServer() then
 	local coinCollectedEvent = Instance.new("RemoteEvent")
 	coinCollectedEvent.Name = "CoinCollected"
 	coinCollectedEvent.Parent = remotesFolder
+
+	local rebirthRequestEvent = Instance.new("RemoteEvent")
+	rebirthRequestEvent.Name = "RebirthRequest"
+	rebirthRequestEvent.Parent = remotesFolder
 else
 	-- CLIENTE: esperar a que el servidor los haya creado
 	remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
@@ -26,5 +30,6 @@ end
 
 Remotes.TeleportToStage = remotesFolder:WaitForChild("TeleportToStage")
 Remotes.CoinCollected = remotesFolder:WaitForChild("CoinCollected")
+Remotes.RebirthRequest = remotesFolder:WaitForChild("RebirthRequest")
 
 return Remotes

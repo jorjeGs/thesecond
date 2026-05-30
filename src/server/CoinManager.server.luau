@@ -43,9 +43,11 @@ local function setupCoinTrigger(part: BasePart)
 		-- Registrar/Actualizar timestamp del cooldown
 		playerCooldowns[coinModel] = currentTime
 
-		-- Incrementar Coins en el sistema PlayerData
+		-- Incrementar Coins en el sistema PlayerData con multiplicador de Rebirths (1 + rebirths * 0.5)
 		local currentCoins = data.Coins or 0
-		PlayerData:UpdateStat(player, "Coins", currentCoins + 1)
+		local rebirths = data.Rebirths or 0
+		local multiplier = 1 + (rebirths * 0.5)
+		PlayerData:UpdateStat(player, "Coins", currentCoins + 1 * multiplier)
 
 		-- Enviar evento al cliente de este jugador específico para que oculte la moneda
 		Remotes.CoinCollected:FireClient(player, coinModel)
