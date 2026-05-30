@@ -1,8 +1,76 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
 local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
 local Remotes = require(ReplicatedStorage:WaitForChild("Shared"):WaitForChild("Remotes"))
 
+local player = Players.LocalPlayer
 local COOLDOWN_DURATION = 60
+local REWARD_FLOAT_DURATION = 3
+local REWARD_TWEEN_INFO = TweenInfo.new(REWARD_FLOAT_DURATION, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+local function formatRewardAmount(amount: number): string
+	local formatted = string.format("%.2f", amount)
+	formatted = string.gsub(formatted, "%.?0+$", "")
+	return formatted
+end
+
+local function showCoinRewardText(amount: number)
+	local character = player.Character
+	if not character then return end
+
+	local rootPart = character:FindFirstChild("HumanoidRootPart")
+	if not rootPart or not rootPart:IsA("BasePart") then return end
+
+	local playerGui = player:FindFirstChild("PlayerGui")
+	if not playerGui then return end
+
+	-- Dispersión aleatoria para evitar que múltiples textos se encabalguen
+	local randomX = (math.random() * 3) - 1.5
+	local randomZ = (math.random() * 3) - 1.5
+
+	local billboardGui = Instance.new("BillboardGui")
+	billboardGui.Name = "CoinRewardFloat"
+	billboardGui.Adornee = rootPart
+	billboardGui.AlwaysOnTop = true
+	billboardGui.LightInfluence = 0
+	billboardGui.Size = UDim2.fromOffset(180, 70)
+	billboardGui.StudsOffset = Vector3.new(randomX, 2.5, randomZ)
+	billboardGui.Parent = playerGui
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.BackgroundTransparency = 1
+	textLabel.Font = Enum.Font.FredokaOne
+	textLabel.Size = UDim2.fromScale(1, 1)
+	textLabel.Text = "+$" .. formatRewardAmount(amount)
+	textLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
+	textLabel.TextScaled = true
+	textLabel.TextStrokeTransparency = 1
+	textLabel.Parent = billboardGui
+
+	local uiStroke = Instance.new("UIStroke")
+	uiStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
+	uiStroke.Color = Color3.fromRGB(80, 40, 0)
+	uiStroke.Thickness = 3
+	uiStroke.Transparency = 0
+	uiStroke.Parent = textLabel
+
+	TweenService:Create(billboardGui, REWARD_TWEEN_INFO, {
+		StudsOffset = Vector3.new(randomX, 6, randomZ),
+	}):Play()
+	TweenService:Create(textLabel, REWARD_TWEEN_INFO, {
+		TextTransparency = 1,
+	}):Play()
+	TweenService:Create(uiStroke, REWARD_TWEEN_INFO, {
+		Transparency = 1,
+	}):Play()
+
+	task.delay(REWARD_FLOAT_DURATION, function()
+		if billboardGui.Parent then
+			billboardGui:Destroy()
+		end
+	end)
+end
 
 local function findCoinPart(coinModel: Instance): BasePart?
 	local targetNames = {"COIN", "Coin", "coin"}
@@ -48,7 +116,7 @@ local function findCoinPart(coinModel: Instance): BasePart?
 	return nil
 end
 
-local function onCoinCollected(coinModel: Instance)
+local function onCoinCollected(coinModel: Instance, coinsEarned: number?)
 	if not coinModel or not coinModel:IsA("Model") then 
 		warn("[CoinManager Client] El objeto recibido no es un Model válido: " .. tostring(coinModel))
 		return 
@@ -68,6 +136,8 @@ local function onCoinCollected(coinModel: Instance)
 		end
 
 		-- Programar que vuelva a aparecer después de 60 segundos de forma no bloqueante
+		showCoinRewardText(coinsEarned or 1)
+
 		task.delay(COOLDOWN_DURATION, function()
 			-- Validar que la moneda y la parte sigan existiendo en el juego
 			if coinModel.Parent and coinPart.Parent then

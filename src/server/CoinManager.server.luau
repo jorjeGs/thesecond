@@ -47,10 +47,11 @@ local function setupCoinTrigger(part: BasePart)
 		local currentCoins = data.Coins or 0
 		local rebirths = data.Rebirths or 0
 		local multiplier = 1 + (rebirths * 0.5)
-		PlayerData:UpdateStat(player, "Coins", currentCoins + 1 * multiplier)
+		local coinsEarned = 1 * multiplier
+		PlayerData:UpdateStat(player, "Coins", currentCoins + coinsEarned)
 
 		-- Enviar evento al cliente de este jugador específico para que oculte la moneda
-		Remotes.CoinCollected:FireClient(player, coinModel)
+		Remotes.CoinCollected:FireClient(player, coinModel, coinsEarned)
 	end)
 end
 
